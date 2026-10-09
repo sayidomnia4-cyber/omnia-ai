@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#211239">
+<title>أمنية AI</title>
+<style>
+:root{--bg:#120d20;--panel:#211832;--panel2:#2d2042;--accent:#c084fc;--accent2:#a855f7;--text:#fff;--muted:#c9bddb;--line:#ffffff18}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(ellipse at top,#382052 0%,var(--bg) 58%);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Tahoma,Arial,sans-serif;min-height:100vh}
+.app{max-width:760px;margin:auto;min-height:100vh;display:flex;flex-direction:column;padding:12px}
+header{display:flex;align-items:center;gap:12px;padding:14px;background:#211832eF;border:1px solid var(--line);border-radius:22px;position:sticky;top:8px;z-index:2;backdrop-filter:blur(10px)}
+.avatar{width:58px;height:58px;border-radius:18px;background:linear-gradient(135deg,#e879f9,#7c3aed);display:grid;place-items:center;font-size:31px;box-shadow:0 0 24px #c084fc40}
+h1{font-size:22px;margin:0 0 3px;color:#f0d7ff}
+.subtitle{font-size:12px;color:var(--muted)}
+.actions{margin-right:auto;display:flex;gap:7px}
+.iconbtn,.smallbtn{border:1px solid var(--line);background:var(--panel2);color:white;border-radius:12px;padding:9px;cursor:pointer}
+main{flex:1;padding:14px 2px}
+.welcome{padding:18px;background:linear-gradient(135deg,#35234a,#211832);border:1px solid var(--line);border-radius:20px;margin-bottom:14px;line-height:1.8}
+.welcome strong{color:#f0abfc}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.chip{border:1px solid #c084fc55;background:#8b5cf61a;color:#f3e8ff;border-radius:999px;padding:8px 11px;cursor:pointer;font-size:13px}
+#chat{display:flex;flex-direction:column;gap:10px}
+.msg{max-width:90%;padding:12px 14px;border-radius:17px;line-height:1.75;white-space:pre-wrap;overflow-wrap:anywhere}
+.bot{align-self:flex-start;background:var(--panel);border:1px solid var(--line);border-top-right-radius:5px}
+.user{align-self:flex-end;background:linear-gradient(135deg,#9333ea,#6d28d9);border-top-left-radius:5px}
+.msg small{display:block;color:#d9c8ec;font-size:10px;margin-top:5px}
+.composer{position:sticky;bottom:0;background:#120d20ed;padding:10px 0 max(10px,env(safe-area-inset-bottom));backdrop-filter:blur(10px)}
+.tools{display:flex;gap:7px;margin-bottom:8px;flex-wrap:wrap}
+.inputrow{display:flex;gap:8px;align-items:flex-end}
+textarea{flex:1;resize:vertical;min-height:48px;max-height:150px;background:#241a35;border:1px solid #c084fc55;border-radius:16px;padding:13px;color:white;font:inherit;outline:none}
+textarea:focus{border-color:var(--accent)}
+.send{border:0;border-radius:15px;background:linear-gradient(135deg,#c084fc,#9333ea);color:#fff;padding:14px 17px;font-weight:bold;cursor:pointer}
+.note{font-size:11px;color:#b9abc9;line-height:1.6;text-align:center;margin-top:8px}
+.modal{position:fixed;inset:0;background:#0009;display:none;align-items:center;justify-content:center;padding:16px;z-index:5}
+.modal.open{display:flex}
+.card{width:min(100%,520px);max-height:85vh;overflow:auto;background:#211832;border:1px solid #c084fc55;border-radius:20px;padding:18px}
+.card h2{margin-top:0;color:#f0abfc}
+.card label{display:block;margin:12px 0 5px;color:#e9d5ff;font-size:13px}
+.card input,.card textarea{width:100%;min-height:42px;background:#140e20;border:1px solid var(--line);border-radius:10px;padding:10px;color:white;font:inherit}
+.card textarea{min-height:90px}
+.rowbtn{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.primary{background:#9333ea;color:white;border:0;border-radius:11px;padding:11px 14px;cursor:pointer}
+.secondary{background:#38264d;color:white;border:1px solid var(--line);border-radius:11px;padding:11px 14px;cursor:pointer}
+.memoryitem{padding:10px;background:#140e20;border-radius:10px;margin:8px 0;white-space:pre-wrap;overflow-wrap:anywhere}
+a{color:#e9d5ff}
+</style>
+</head>
+<body>
+<div class="app">
+<header>
+  <div class="avatar" aria-hidden="true">🤖</div>
+  <div><h1>أمنية AI</h1><div class="subtitle">مساعدتك الشخصية • نسخة تجريبية</div></div>
+  <div class="actions">
+    <button class="iconbtn" id="memoryBtn" title="الذاكرة" aria-label="الذاكرة">🧠</button>
+    <button class="iconbtn" id="settingsBtn" title="الإعدادات" aria-label="الإعدادات">⚙️</button>
+  </div>
+</header>
+<main>
+  <section class="welcome">
+    <strong>أهلًا يا أمنية ❤️</strong><br>
+    أنا الواجهة التجريبية لمساعدتك. اكتبي أي شيء تحبي تحتفظي به في ملاحظاتك، أو احكيلي سؤالك. أقدر أساعد بردود بسيطة دلوقتي، وللإجابات الذكية المفتوحة هنحتاج ربطًا آمنًا بخدمة ذكاء اصطناعي.
+    <div class="chips">
+      <button class="chip" data-prompt="إيه المعلومات المحفوظة عني؟">🧠 معلوماتي</button>
+      <button class="chip" data-prompt="ساعديني أرتب يومي">📅 رتبي يومي</button>
+      <button class="chip" data-prompt="عايزة أكتب ملاحظة جديدة">📝 ملاحظة جديدة</button>
+      <button class="chip" data-prompt="إزاي أضيف معلومة للذاكرة؟">💜 الذاكرة</button>
+    </div>
+  </section>
+  <section id="chat" aria-live="polite"></section>
+</main>
+<section class="composer">
+  <div class="tools">
+    <button class="smallbtn" id="voiceBtn">🎙️ إملاء صوتي</button>
+    <button class="smallbtn" id="saveBtn">💾 احفظ رسالتي كملاحظة</button>
+    <button class="smallbtn" id="clearChatBtn">🧹 مسح المحادثة</button>
+  </div>
+  <form id="chatForm" class="inputrow">
+    <textarea id="messageInput" rows="1" placeholder="اكتبي رسالتك هنا يا أمنية..." aria-label="رسالتك"></textarea>
+    <button class="send" type="submit">إرسال</button>
+  </form>
+  <div class="note">الملاحظات تُحفظ على هذا الجهاز فقط. لا تضعي كلمات مرور أو بيانات مالية أو معلومات شديدة الخصوصية.</div>
+</section>
+</div>
+
+<div class="modal" id="memoryModal" role="dialog" aria-modal="true" aria-labelledby="memoryTitle">
+ <div class="card">
+  <h2 id="memoryTitle">🧠 ذاكرة أمنية</h2>
+  <p class="subtitle">دي معلومات محفوظة محليًا على جهازك. تقدري تعدّليها أو تمسحيها.</p>
+  <label for="profileInput">معلومات عني والأشخاص المهمين</label>
+  <textarea id="profileInput"></textarea>
+  <label for="notesInput">ملاحظاتي الشخصية</label>
+  <textarea id="notesInput" placeholder="اكتبي أي ملاحظة تحبي تفتكريها..."></textarea>
+  <div class="rowbtn">
+   <button class="primary" id="saveMemory">حفظ الذاكرة</button>
+   <button class="secondary" id="closeMemory">إغلاق</button>
+   <button class="secondary" id="deleteMemory">مسح الذاكرة</button>
+  </div>
+ </div>
+</div>
+
+<div class="modal" id="settingsModal" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+ <div class="card">
+  <h2 id="settingsTitle">⚙️ إعدادات أمنية</h2>
+  <p>النسخة دي ملف HTML مستقل، وردودها حاليًا تجريبية. لتشغيل ذكاء اصطناعي حقيقي، اربطيها بخادم آمن يتصل بمزوّد ذكاء اصطناعي. لا تضعي مفتاح API داخل ملف HTML لأنه ممكن ينكشف لأي شخص يحصل على الملف.</p>
+  <label for="nickname">الاسم اللي أمنية تناديكي بيه</label>
+  <input id="nickname" value="أمنية">
+  <div class="rowbtn">
+   <button class="primary" id="saveSettings">حفظ</button>
+   <button class="secondary" id="closeSettings">إغلاق</button>
+  </div>
+ </div>
+</div>
+
+<script>
+(() => {
+  const $ = id => document.getElementById(id);
+  const defaultProfile = "اسمي أمنية. جوزي اسمه حماده. صاحبتي اسمها حبيبة. جوز حبيبة اسمه مصطفى. أخو حبيبة اسمه بولا.";
+  const KEYS = {profile:"omnia_profile_v1", notes:"omnia_notes_v1", name:"omnia_nickname_v1", chat:"omnia_chat_v1"};
+  const safeGet = (key, fallback="") => { try { return localStorage.getItem(key) ?? fallback; } catch { return fallback; } };
+  const safeSet = (key, value) => { try { localStorage.setItem(key, value); return true; } catch { alert("المتصفح منع الحفظ. جرّبي فتح الملف في متصفح عادي."); return false; } };
+  let profile = safeGet(KEYS.profile, defaultProfile);
+  let notes = safeGet(KEYS.notes, "");
+  let nickname = safeGet(KEYS.name, "أمنية");
+
+  function addMessage(text, who, save=true) {
+    const el = document.createElement("div");
+    el.className = "msg " + who;
+    el.textContent = text;
+    $("chat").appendChild(el);
+    $("chat").scrollTop = $("chat").scrollHeight;
+    if (save) {
+      const history = JSON.parse(safeGet(KEYS.chat, "[]"));
+      history.push({text, who, time:Date.now()});
+      safeSet(KEYS.chat, JSON.stringify(history.slice(-60)));
+    }
+  }
+  function renderHistory() {
+    let history=[];
+    try { history=JSON.parse(safeGet(KEYS.chat,"[]")); } catch {}
+    history.forEach(m => addMessage(m.text, m.who, false));
+  }
+  function answer(raw) {
+    const t = raw.trim().toLowerCase();
+    if (/^(سلام|باي|باى|مع السلامة|تصبحي على خير)/.test(t)) return `مع السلامة يا ${nickname} ❤️ ابقي تعالي نتكلم تاني.`;
+    if (/اسمك|مين انتي|مين أنت|عرفيني بنفسك/.test(t)) return `أنا أمنية AI 🤖، مساعدتك التجريبية. بتكلم معاكي بالمصري، ولسه محتاجة ربط بذكاء اصطناعي عشان أفهم أي موضوع بحرية.`;
+    if (/معلومات.*عني|فاكرة|الذاكرة|المعلومات المحفوظة/.test(t)) return `المعلومات اللي عندي محفوظة عندك هي:\n${profile}\n${notes ? "\nملاحظاتك:\n"+notes : "\nلسه مفيش ملاحظات شخصية محفوظة."}\nتقدري تعدليها من زر 🧠.`;
+    if (/حماده|حمادة/.test(t)) return `حسب المعلومات اللي حفظناها، حماده هو جوزك يا ${nickname} ❤️. احكيلي إيه اللي حابة تضيفيه للذاكرة عنه من زر 🧠.`;
+    if (/حبيبة|حبيبه/.test(t)) return `حبيبة صاحبتك، ومصطفى جوزها، وبولا أخوها، حسب المعلومات المحفوظة عندي 💜.`;
+    if (/ملاحظة|احفظ|افتكر|افتكري/.test(t)) return "ممكن تحفظي كلامك كملاحظة بالضغط على زر «احفظ رسالتي كملاحظة»، أو تفتحي 🧠 وتكتبي المعلومة بنفسك.";
+    if (/يوم|رتب|جدول/.test(t)) return "أكيد ❤️ اكتبيلي المهام اللي عندك والوقت المتاح، وأساعدك أرتبها. (الردود في النسخة دي محدودة لحد ما نربط ذكاء اصطناعي حقيقي.)";
+    if (/^(اه|أه|تمام|ماشي|شكرا|شكرًا)/.test(t)) return `حاضر يا ${nickname} ❤️ أنا معاكي.`;
+    return `وصلتني رسالتك يا ${nickname} ❤️\nالنسخة الحالية مش متصلة بذكاء اصطناعي، فمش هقدر أجاوب على أي سؤال بشكل مفتوح لسه. تقدري تحفظي رسالتك كملاحظة، أو نطوّرها لاحقًا بربط آمن بخدمة ذكاء اصطناعي.`;
+  }
+  $("chatForm").addEventListener("submit", e => {
+    e.preventDefault();
+    const value=$("messageInput").value.trim();
+    if(!value) return;
+    addMessage(value,"user");
+    $("messageInput").value="";
+    setTimeout(()=>addMessage(answer(value),"bot"),250);
+  });
+  document.querySelectorAll("[data-prompt]").forEach(btn => btn.addEventListener("click",()=> {
+    $("messageInput").value=btn.dataset.prompt;
+    $("messageInput").focus();
+  }));
+  $("saveBtn").addEventListener("click",()=>{
+    const value=$("messageInput").value.trim();
+    if(!value){alert("اكتبي الرسالة في الخانة الأول، وبعدها اضغطي حفظ.");return;}
+    notes += (notes ? "\n\n" : "") + "• " + value;
+    if(safeSet(KEYS.notes,notes)) alert("اتحفظت الملاحظة على جهازك ❤️");
+  });
+  $("clearChatBtn").addEventListener("click",()=>{
+    if(confirm("تمسحي سجل المحادثة من الجهاز؟")) {
+      safeSet(KEYS.chat,""); $("chat").innerHTML="";
+      addMessage(`أهلًا يا ${nickname} ❤️ بدأنا محادثة جديدة.`, "bot");
+    }
+  });
+  $("memoryBtn").addEventListener("click",()=>{
+    $("profileInput").value=profile;
+    $("notesInput").value=notes;
+    $("memoryModal").classList.add("open");
+  });
+  $("closeMemory").addEventListener("click",()=>$("memoryModal").classList.remove("open"));
+  $("saveMemory").addEventListener("click",()=>{
+    profile=$("profileInput").value.trim();
+    notes=$("notesInput").value.trim();
+    const ok1=safeSet(KEYS.profile,profile), ok2=safeSet(KEYS.notes,notes);
+    if(ok1&&ok2){$("memoryModal").classList.remove("open");addMessage("حفظت التعديلات في الذاكرة المحلية يا "+nickname+" ❤️","bot");}
+  });
+  $("deleteMemory").addEventListener("click",()=>{
+    if(confirm("متأكدة إنك عايزة تمسحي المعلومات والملاحظات المحفوظة؟")){
+      profile=""; notes="";
+      safeSet(KEYS.profile,""); safeSet(KEYS.notes,"");
+      $("profileInput").value=""; $("notesInput").value="";
+      alert("اتمسحت الذاكرة والملاحظات.");
+    }
+  });
+  $("settingsBtn").addEventListener("click",()=>{
+    $("nickname").value=nickname;
+    $("settingsModal").classList.add("open");
+  });
+  $("closeSettings").addEventListener("click",()=>$("settingsModal").classList.remove("open"));
+  $("saveSettings").addEventListener("click",()=>{
+    nickname=$("nickname").value.trim()||"أمنية";
+    safeSet(KEYS.name,nickname);
+    $("settingsModal").classList.remove("open");
+    addMessage("تمام يا "+nickname+" ❤️ حفظت الاسم اللي تحبي أناديكي بيه.","bot");
+  });
+  $("voiceBtn").addEventListener("click",()=>{
+    const Recognition=window.SpeechRecognition||window.webkitSpeechRecognition;
+    if(!Recognition){alert("الإملاء الصوتي مش مدعوم في المتصفح الحالي. جربي Chrome أو اكتبي رسالتك.");return;}
+    const rec=new Recognition(); rec.lang="ar-EG"; rec.interimResults=false;
+    rec.onresult=e=>{$("messageInput").value=e.results[0][0].transcript;$("messageInput").focus();};
+    rec.onerror=()=>alert("ماقدرتش أسمع الصوت. اتأكدي من إذن الميكروفون.");
+    rec.start();
+  });
+  renderHistory();
+  if(!$("chat").children.length) addMessage(`أهلًا يا ${nickname} ❤️ أنا أمنية. تقدري تكتبيلي أو تفتحي الذاكرة 🧠 عشان تعدلي معلوماتك.`, "bot");
+})();
+</script>
+</body>
+</html>
